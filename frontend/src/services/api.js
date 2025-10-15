@@ -21,7 +21,20 @@ const apiService = {
   getSensoresActuales: async () => {
     try {
       const response = await api.get('/sensores/actuales');
-      return response.data;
+      // Normalizar datos
+      const payload = response.data.reduce((acc, red) => {
+        acc[red.id] = {
+          id: red.id,
+          humedad : Number(red.humedad),
+          caudal: Number(red.caudal),
+          lluvia: Number(red.lluvia),
+          presion: Number(red.presion),
+          temperatura: Number(red.temperatura),
+          timestamp: red.timestamp
+        };
+        return acc;
+      }, {});
+      return payload; 
     } catch (error) {
       console.error('Error obteniendo datos actuales:', error);
       throw error;
@@ -55,7 +68,8 @@ const apiService = {
   getAlertasActivas: async () => {
     try {
       const response = await api.get('/alertas/activas');
-      return response.data;
+      const payload = response.data;
+      return payload && payload.data !== undefined ? payload.data : payload;
     } catch (error) {
       console.error('Error obteniendo alertas activas:', error);
       throw error;
@@ -76,7 +90,9 @@ const apiService = {
 
   marcarAlertaAtendida: async (alertaId) => {
     try {
+      console.log('llego xD');
       const response = await api.put(`/alertas/${alertaId}/atender`);
+      console.log('Fallo ?');
       return response.data;
     } catch (error) {
       console.error('Error marcando alerta como atendida:', error);
@@ -87,7 +103,8 @@ const apiService = {
   getEstaciones: async () => {
     try {
       const response = await api.get('/estaciones');
-      return response.data;
+      const payload = response.data;
+      return payload && payload.data !== undefined ? payload.data : payload;
     } catch (error) {
       console.error('Error obteniendo estaciones:', error);
       throw error;
@@ -99,7 +116,8 @@ const apiService = {
       const response = await api.get('/estadisticas', {
         params: { periodo }
       });
-      return response.data;
+      const payload = response.data;
+      return payload && payload.data !== undefined ? payload.data : payload;
     } catch (error) {
       console.error('Error obteniendo estadísticas:', error);
       throw error;

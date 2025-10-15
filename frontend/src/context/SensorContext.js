@@ -29,7 +29,6 @@ export const SensorProvider = ({ children }) => {
         apiService.getAlertasActivas(),
         apiService.getEstaciones()
       ]);
-
       setSensoresActuales(sensores);
       setAlertasActivas(alertas);
       setEstaciones(estacionesData);
@@ -38,73 +37,17 @@ export const SensorProvider = ({ children }) => {
     } catch (err) {
       console.error('Error cargando datos iniciales:', err);
       setError('Error al cargar los datos del sistema');
-      
-      cargarDatosMock();
     } finally {
       setLoading(false);
     }
   }, []);
 
-  const cargarDatosMock = () => {
-    setSensoresActuales({
-      nodo1: {
-        id: 'nodo1',
-        nombre: 'Estación 1',
-        caudal: 120,
-        humedad: 65,
-        temperatura: 22,
-        lluvia: 5,
-        timestamp: new Date().toISOString()
-      },
-      nodo2: {
-        id: 'nodo2',
-        nombre: 'Estación 2',
-        caudal: 110,
-        humedad: 70,
-        temperatura: 20,
-        lluvia: 2,
-        timestamp: new Date().toISOString()
-      },
-      nodo3: {
-        id: 'nodo3',
-        nombre: 'Estación 3',
-        caudal: 95,
-        humedad: 60,
-        temperatura: 24,
-        lluvia: 0,
-        timestamp: new Date().toISOString()
-      }
-    });
-
-    setEstaciones([
-      { id: 'nodo1', nombre: 'Estación 1', lat: -17.3935, lng: -66.1570 },
-      { id: 'nodo2', nombre: 'Estación 2', lat: -17.3945, lng: -66.1580 },
-      { id: 'nodo3', nombre: 'Estación 3', lat: -17.3955, lng: -66.1590 }
-    ]);
-
-    setAlertasActivas([
-      {
-        id: 1,
-        tipo: 'warning',
-        titulo: 'Precaución: Alta Probabilidad de Lluvia',
-        descripcion: 'Se esperan lluvias moderadas en las próximas 24 horas. Tome las precauciones necesarias.',
-        nodoId: 'nodo1',
-        timestamp: new Date().toISOString(),
-        atendida: false
-      },
-      {
-        id: 2,
-        tipo: 'critical',
-        titulo: 'Alerta Crítica: Caudal del Río Supera el Umbral',
-        descripcion: 'El caudal del río ha superado los niveles críticos. Se requiere acción inmediata.',
-        nodoId: 'nodo1',
-        timestamp: new Date().toISOString(),
-        atendida: false
-      }
-    ]);
-  };
-
   const actualizarSensorData = useCallback((data) => {
+    data.temperatura = Number(data.temperatura);
+    data.humedad = Number(data.humedad);
+    data.caudal = Number(data.caudal);
+    data.lluvia = Number(data.lluvia);
+
     setSensoresActuales(prev => ({
       ...prev,
       [data.id]: {

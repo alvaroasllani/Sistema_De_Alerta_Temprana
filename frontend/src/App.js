@@ -76,7 +76,7 @@ function App() {
         <h1 className="stations-title">Monitoreo por Estaciones</h1>
         <div className="stations-grid">
           {sensoresArray.map((sensor) => {
-            const alertasNodo = alertasActivas.filter(a => a.nodoId === sensor.id && !a.atendida);
+            const alertasNodo = alertasActivas.filter(a => a.id === sensor.id && !a.activa);
             const alertaPrincipal = alertasNodo.find(a => a.tipo === 'critical') || alertasNodo[0];
 
             return (
@@ -103,7 +103,7 @@ function App() {
                         (sensor.lluvia || 0) > config.THRESHOLDS.LLUVIA_ALTA ? 'warning' : 
                         (sensor.lluvia || 0) === 0 ? 'normal' : ''
                       }`}>
-                        {sensor.lluvia || 0}mm/h
+                        {sensor.lluvia?.toFixed(1) || 0}mm/h
                       </div>
                       <div className="metric-secondary">
                         Intensidad: {getIntensidadLluvia(sensor.lluvia || 0)}
@@ -335,6 +335,7 @@ function App() {
   const renderMonitoreoPage = () => {
     const promedios = calcularPromedios();
     const alertasNoAtendidas = alertasActivas.filter(a => !a.atendida);
+    console.log('Alertas activas: ', alertasActivas);
 
     if (loading) {
       return (
@@ -466,9 +467,9 @@ function App() {
           <div className="time">{currentTime}</div>
           <div className="notification-icon">
             <FaBell />
-            {alertasActivas.filter(a => !a.atendida).length > 0 && (
+            {alertasActivas.filter(a => a.activa === 1).length > 0 && (
               <span className="notification-badge">
-                {alertasActivas.filter(a => !a.atendida).length}
+                {alertasActivas.filter(a => a.activa === 1).length}
               </span>
             )}
           </div>
