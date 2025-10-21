@@ -10,26 +10,30 @@ import {
   FaExclamationCircle,
   FaCalendar,
   FaCircle,
-  FaSync
+  FaSync,
+  FaSignOutAlt
 } from 'react-icons/fa';
 import { useSensor } from './context/SensorContext';
+import { useAuth } from './context/AuthContext';
 import config from './config/config';
+import Login from './components/Login';
 
 function App() {
   const [activeTab, setActiveTab] = useState('inicio');
   const [currentTime, setCurrentTime] = useState('');
   
+  const { isAuthenticated, login, logout, loading: authLoading } = useAuth();
+  
   const { 
     sensoresActuales, 
     alertasActivas, 
-    estaciones,
     loading,
     wsConnected,
-    ultimaActualizacion,
     marcarAlertaAtendida,
     recargarDatos
   } = useSensor();
 
+  // Hook useEffect debe estar antes de los returns condicionales
   useEffect(() => {
     const updateTime = () => {
       const now = new Date();
@@ -43,6 +47,26 @@ function App() {
     const interval = setInterval(updateTime, 60000);
     return () => clearInterval(interval);
   }, []);
+
+  // Si aún está cargando la autenticación, mostrar pantalla de carga
+  if (authLoading) {
+    return (
+      <div className="loading-container" style={{ 
+        height: '100vh', 
+        display: 'flex', 
+        alignItems: 'center', 
+        justifyContent: 'center' 
+      }}>
+        <FaSync className="loading-icon" />
+        <p>Cargando...</p>
+      </div>
+    );
+  }
+
+  // Si no está autenticado, mostrar login
+  if (!isAuthenticated) {
+    return <Login onLogin={login} />;
+  }
 
   const getIntensidadLluvia = (lluvia) => {
     if (lluvia === 0) return 'Ninguna';
@@ -473,6 +497,9 @@ function App() {
               </span>
             )}
           </div>
+          <button className="logout-button" onClick={logout} title="Cerrar sesión">
+            <FaSignOutAlt />
+          </button>
         </div>
       </header>
 

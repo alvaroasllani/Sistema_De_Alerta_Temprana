@@ -156,6 +156,26 @@
   justify-content: center;
 }
 
+.logout-button {
+  width: 36px;
+  height: 36px;
+  background: #2a3340;
+  border: none;
+  border-radius: 8px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  cursor: pointer;
+  transition: all 0.3s ease;
+  font-size: 18px;
+  color: #9ca3af;
+}
+
+.logout-button:hover {
+  background: #374151;
+  color: #ef4444;
+}
+
 /* Metrics Grid */
 .metrics-grid {
   display: grid;
