@@ -359,7 +359,6 @@ function App() {
   const renderMonitoreoPage = () => {
     const promedios = calcularPromedios();
     const alertasNoAtendidas = alertasActivas.filter(a => !a.atendida);
-    console.log('Alertas activas: ', alertasActivas);
 
     if (loading) {
       return (
@@ -423,7 +422,7 @@ function App() {
                     <p className="alert-description">{alerta.descripcion}</p>
                     <div className="alert-footer">
                       <span className="alert-time">
-                        {new Date(alerta.timestamp).toLocaleString('es-ES')}
+                        {new Date(alerta.createdAt).toLocaleString('es-ES')}
                       </span>
                       <button 
                         className="alert-action-btn"

@@ -20,7 +20,7 @@ api.interceptors.response.use(
 const apiService = {
   getSensoresActuales: async () => {
     try {
-      const response = await api.get('/sensores/actuales');
+      const response = await api.get('/lecturas/actuales');
       // Normalizar datos
       const payload = response.data.reduce((acc, red) => {
         acc[red.id] = {

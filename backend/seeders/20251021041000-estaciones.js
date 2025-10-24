@@ -5,14 +5,14 @@ module.exports = {
   async up (queryInterface, Sequelize) {
     return queryInterface.bulkInsert('estaciones', [
       {
-        codigo: 'esp32-1',
+        codigo: 'esp32-01',
         nombre: 'Estacion 1',
         ubicacion: 'Cualquier Punto',
         latitud: 122.65,
         longitud: 232.78
       },
       {
-        codigo: 'esp32-2',
+        codigo: 'esp32-02',
         nombre: 'Estacion 2',
         ubicacion: 'Cualquier Punto',
         latitud: 932.65,
