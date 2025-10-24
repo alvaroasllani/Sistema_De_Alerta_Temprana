@@ -2,7 +2,7 @@
   "development": {
     "username": "root",
     "password": "12qwaszx",
-    "database": "monitoreo_ambiental_2",
+    "database": "monitoreo_ambiental",
     "host": "127.0.0.1",
     "dialect": "mysql"
   },

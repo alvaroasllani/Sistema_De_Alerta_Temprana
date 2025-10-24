@@ -2,7 +2,7 @@ require('dotenv').config();
 
 const mysql = require('mysql2/promise');
 const db = require('./models');
-const { estaciones, alertas, sequelize } = db;
+const { estaciones, alertas, sequelize, lecturas } = db;
 
 async function getEstaciones() {
 	try {
@@ -39,7 +39,7 @@ async function getAlertasActivas() {
 async function getLecturasActuales() {
 	try {
 		const [rows] = await sequelize.query(`
-			SELECT device_id AS id, temperatura, humedad, lluvia, caudal, presion, createdAt as timestamp
+			SELECT device_id AS nombre, temperatura, humedad, lluvia, caudal, presion, createdAt as timestamp
 			FROM lecturas 
 			WHERE id IN (
 				SELECT MAX(id) 
@@ -146,7 +146,17 @@ async function emitirAlertaSiCorresponde(lectura) {
   }
 }
 
-// async function insertReading(reading) {};
+async function insertReading(reading) {
+  try {
+		const alerta = await lecturas.create(reading);
+			console.log("Lectura creada con exito");
+			return true;
+
+	} catch (err) {
+		console.log('Error al insertar la lectura', err);
+		throw err;
+	}
+};
 // async function getLatest(deviceId) {};
 
 module.exports = { 
@@ -154,6 +164,7 @@ module.exports = {
 	getAlertasActivas, 
 	getEstaciones, 
 	atenderAlerta,
-	emitirAlertaSiCorresponde
+	emitirAlertaSiCorresponde,
+  insertReading
 };
 
