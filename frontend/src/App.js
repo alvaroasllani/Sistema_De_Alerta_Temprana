@@ -27,10 +27,12 @@ function App() {
   const { 
     sensoresActuales, 
     alertasActivas, 
+    datosHistoricos,
     loading,
     wsConnected,
     marcarAlertaAtendida,
-    recargarDatos
+    recargarDatos,
+    cargarDatosHistoricos
   } = useSensor();
 
   // Hook useEffect debe estar antes de los returns condicionales
@@ -47,6 +49,21 @@ function App() {
     const interval = setInterval(updateTime, 60000);
     return () => clearInterval(interval);
   }, []);
+
+  // Cargar datos históricos cuando se cambia a la pestaña de históricos
+  useEffect(() => {
+    if (activeTab === 'historicos' && cargarDatosHistoricos) {
+      // Cargar datos iniciales
+      cargarDatosHistoricos(60);
+
+      // Actualizar cada minuto
+      const interval = setInterval(() => {
+        cargarDatosHistoricos(60);
+      }, 60000); // 60000 ms = 1 minuto
+
+      return () => clearInterval(interval);
+    }
+  }, [activeTab, cargarDatosHistoricos]);
 
   // Si aún está cargando la autenticación, mostrar pantalla de carga
   if (authLoading) {
@@ -197,37 +214,57 @@ function App() {
   };
 
   const renderHistoricalPage = () => {
-    // Sample data for charts
-    const tempData = [20, 21, 22, 23, 22, 21, 22];
-    const humidityData = [78, 76, 75, 74, 76, 75, 75];
-    const rainData = [10, 12, 14, 13, 15, 14, 15];
-    const flowData = [1.4, 1.3, 1.2, 1.1, 1.2, 1.3, 1.2];
+    // Verificar si hay datos históricos cargados
+    if (!datosHistoricos) {
+      return (
+        <div className="historical-page">
+          <div className="loading-container">
+            <FaSync className="loading-icon" />
+            <p>Cargando datos históricos...</p>
+          </div>
+        </div>
+      );
+    }
 
-    // Historical records data
-    const historicalRecords = [
-      { date: '2024-07-26 10:00', temp: 21.5, humidity: 72, rain: 12, flow: 1.1 },
-      { date: '2024-07-26 11:00', temp: 22.0, humidity: 70, rain: 13, flow: 1.2 },
-      { date: '2024-07-26 12:00', temp: 22.5, humidity: 68, rain: 14, flow: 1.3 },
-      { date: '2024-07-26 13:00', temp: 23.0, humidity: 65, rain: 15, flow: 1.4 },
-    ];
+    // Procesar datos para las gráficas (últimos 20 registros en orden cronológico)
+    const lecturas = datosHistoricos.lecturas || [];
+    const lecturasOrdenadas = [...lecturas].reverse().slice(-20);
+    
+    // Extraer datos para las gráficas
+    const tempData = lecturasOrdenadas.map(l => parseFloat(l.temperatura) || 0);
+    const humidityData = lecturasOrdenadas.map(l => parseFloat(l.humedad) || 0);
+    const rainData = lecturasOrdenadas.map(l => parseFloat(l.precipitacion) || 0);
+    const flowData = lecturasOrdenadas.map(l => parseFloat(l.caudal) || 0);
+
+    // Calcular valores actuales (promedio de los últimos registros)
+    const promedios = datosHistoricos.promedios || { temperatura: 0, humedad: 0, precipitacion: 0, caudal: 0 };
+    
+    // Preparar registros para la tabla (últimos 20)
+    const historicalRecords = lecturas.map(lectura => ({
+      date: new Date(lectura.timestamp).toLocaleString('es-ES'),
+      temp: parseFloat(lectura.temperatura).toFixed(1),
+      humidity: parseFloat(lectura.humedad).toFixed(1),
+      rain: parseFloat(lectura.precipitacion).toFixed(2),
+      flow: parseFloat(lectura.caudal).toFixed(1),
+      device: lectura.device_name
+    }));
 
     return (
       <div className="historical-page">
-        {/* Header with date filters */}
+        {/* Header with reload button */}
         <div className="historical-header">
-          <h1 className="historical-title">Datos Históricos</h1>
+          <h1 className="historical-title">Datos Históricos (Últimos 60 minutos)</h1>
           <div className="date-filters">
-            <div className="date-input-wrapper">
-              <label className="date-label">
-                <FaCalendar /> Fecha de inicio
-              </label>
-              <input type="date" className="date-input" defaultValue="2024-07-20" />
-            </div>
-            <div className="date-input-wrapper">
-              <label className="date-label">
-                <FaCalendar /> Fecha de fin
-              </label>
-              <input type="date" className="date-input" defaultValue="2024-07-26" />
+            <button 
+              className="reload-button" 
+              onClick={() => cargarDatosHistoricos(60)} 
+              title="Recargar datos históricos"
+            >
+              <FaSync />
+              <span style={{ marginLeft: '8px' }}>Actualizar</span>
+            </button>
+            <div style={{ fontSize: '12px', color: '#9ca3af', marginLeft: '10px' }}>
+              Actualización automática cada minuto
             </div>
           </div>
         </div>
@@ -238,20 +275,26 @@ function App() {
           <div className="chart-card">
             <div className="chart-header">
               <div className="chart-label">Temperatura</div>
-              <div className="chart-value">22°C</div>
-              <span className="chart-trend positive">+2% vs últ. 7 días</span>
+              <div className="chart-value">{promedios.temperatura}°C</div>
+              <span className="chart-trend">Promedio últimos 60 min</span>
             </div>
             <div className="chart-container">
-              <svg className="chart-svg" viewBox="0 0 300 100" preserveAspectRatio="none">
-                <path
-                  d={generateChartPath(tempData, 300, 100)}
-                  fill="none"
-                  stroke="#3b82f6"
-                  strokeWidth="3"
-                  strokeLinecap="round"
-                  strokeLinejoin="round"
-                />
-              </svg>
+              {tempData.length > 1 ? (
+                <svg className="chart-svg" viewBox="0 0 300 100" preserveAspectRatio="none">
+                  <path
+                    d={generateChartPath(tempData, 300, 100)}
+                    fill="none"
+                    stroke="#3b82f6"
+                    strokeWidth="3"
+                    strokeLinecap="round"
+                    strokeLinejoin="round"
+                  />
+                </svg>
+              ) : (
+                <div style={{ textAlign: 'center', paddingTop: '40px', color: '#9ca3af' }}>
+                  Sin suficientes datos
+                </div>
+              )}
             </div>
           </div>
 
@@ -259,41 +302,53 @@ function App() {
           <div className="chart-card">
             <div className="chart-header">
               <div className="chart-label">Humedad</div>
-              <div className="chart-value">75%</div>
-              <span className="chart-trend negative">-5% vs últ. 7 días</span>
+              <div className="chart-value">{promedios.humedad}%</div>
+              <span className="chart-trend">Promedio últimos 60 min</span>
             </div>
             <div className="chart-container">
-              <svg className="chart-svg" viewBox="0 0 300 100" preserveAspectRatio="none">
-                <path
-                  d={generateChartPath(humidityData, 300, 100)}
-                  fill="none"
-                  stroke="#3b82f6"
-                  strokeWidth="3"
-                  strokeLinecap="round"
-                  strokeLinejoin="round"
-                />
-              </svg>
+              {humidityData.length > 1 ? (
+                <svg className="chart-svg" viewBox="0 0 300 100" preserveAspectRatio="none">
+                  <path
+                    d={generateChartPath(humidityData, 300, 100)}
+                    fill="none"
+                    stroke="#3b82f6"
+                    strokeWidth="3"
+                    strokeLinecap="round"
+                    strokeLinejoin="round"
+                  />
+                </svg>
+              ) : (
+                <div style={{ textAlign: 'center', paddingTop: '40px', color: '#9ca3af' }}>
+                  Sin suficientes datos
+                </div>
+              )}
             </div>
           </div>
 
           {/* Rain Chart */}
           <div className="chart-card">
             <div className="chart-header">
-              <div className="chart-label">Lluvia</div>
-              <div className="chart-value">15 mm</div>
-              <span className="chart-trend positive">+10% vs últ. 7 días</span>
+              <div className="chart-label">Precipitación</div>
+              <div className="chart-value">{promedios.precipitacion} mm/h</div>
+              <span className="chart-trend">Promedio últimos 60 min</span>
             </div>
             <div className="chart-container">
-              <svg className="chart-svg" viewBox="0 0 300 100" preserveAspectRatio="none">
-                <path
-                  d={generateChartPath(rainData, 300, 100)}
-                  fill="none"
-                  stroke="#fbbf24"
-                  strokeWidth="3"
-                  strokeLinecap="round"
-                  strokeLinejoin="round"
-                />
-              </svg>
+              {rainData.length > 1 ? (
+                <svg className="chart-svg" viewBox="0 0 300 100" preserveAspectRatio="none">
+                  <path
+                    d={generateChartPath(rainData, 300, 100)}
+                    fill="none"
+                    stroke="#fbbf24"
+                    strokeWidth="3"
+                    strokeLinecap="round"
+                    strokeLinejoin="round"
+                  />
+                </svg>
+              ) : (
+                <div style={{ textAlign: 'center', paddingTop: '40px', color: '#9ca3af' }}>
+                  Sin suficientes datos
+                </div>
+              )}
             </div>
           </div>
 
@@ -301,49 +356,63 @@ function App() {
           <div className="chart-card">
             <div className="chart-header">
               <div className="chart-label">Caudal</div>
-              <div className="chart-value">1.2 m³/s</div>
-              <span className="chart-trend negative">-3% vs últ. 7 días</span>
+              <div className="chart-value">{promedios.caudal} L/s</div>
+              <span className="chart-trend">Promedio últimos 60 min</span>
             </div>
             <div className="chart-container">
-              <svg className="chart-svg" viewBox="0 0 300 100" preserveAspectRatio="none">
-                <path
-                  d={generateChartPath(flowData, 300, 100)}
-                  fill="none"
-                  stroke="#ef4444"
-                  strokeWidth="3"
-                  strokeLinecap="round"
-                  strokeLinejoin="round"
-                />
-              </svg>
+              {flowData.length > 1 ? (
+                <svg className="chart-svg" viewBox="0 0 300 100" preserveAspectRatio="none">
+                  <path
+                    d={generateChartPath(flowData, 300, 100)}
+                    fill="none"
+                    stroke="#ef4444"
+                    strokeWidth="3"
+                    strokeLinecap="round"
+                    strokeLinejoin="round"
+                  />
+                </svg>
+              ) : (
+                <div style={{ textAlign: 'center', paddingTop: '40px', color: '#9ca3af' }}>
+                  Sin suficientes datos
+                </div>
+              )}
             </div>
           </div>
         </div>
 
         {/* Historical Records Table */}
         <div className="historical-table-section">
-          <h2 className="table-title">Registros Históricos</h2>
-          <table className="historical-table">
-            <thead>
-              <tr>
-                <th>FECHA Y HORA</th>
-                <th>TEMPERATURA (°C)</th>
-                <th>HUMEDAD (%)</th>
-                <th>LLUVIA ACUMULADA (MM)</th>
-                <th>NIVEL DE CAUDAL (M³/s)</th>
-              </tr>
-            </thead>
-            <tbody>
-              {historicalRecords.map((record, index) => (
-                <tr key={index}>
-                  <td>{record.date}</td>
-                  <td>{record.temp}</td>
-                  <td>{record.humidity}</td>
-                  <td>{record.rain}</td>
-                  <td>{record.flow}</td>
+          <h2 className="table-title">Registros Históricos (Últimas 20 lecturas)</h2>
+          {historicalRecords.length > 0 ? (
+            <table className="historical-table">
+              <thead>
+                <tr>
+                  <th>FECHA Y HORA</th>
+                  <th>DISPOSITIVO</th>
+                  <th>TEMPERATURA (°C)</th>
+                  <th>HUMEDAD (%)</th>
+                  <th>PRECIPITACIÓN (MM/H)</th>
+                  <th>CAUDAL (L/s)</th>
                 </tr>
-              ))}
-            </tbody>
-          </table>
+              </thead>
+              <tbody>
+                {historicalRecords.map((record, index) => (
+                  <tr key={index}>
+                    <td>{record.date}</td>
+                    <td>{record.device}</td>
+                    <td>{record.temp}</td>
+                    <td>{record.humidity}</td>
+                    <td>{record.rain}</td>
+                    <td>{record.flow}</td>
+                  </tr>
+                ))}
+              </tbody>
+            </table>
+          ) : (
+            <div className="no-alerts">
+              <p>No hay datos históricos disponibles</p>
+            </div>
+          )}
         </div>
       </div>
     );

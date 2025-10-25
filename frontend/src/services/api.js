@@ -132,6 +132,32 @@ const apiService = {
       console.error('Error actualizando umbrales:', error);
       throw error;
     }
+  },
+
+  getDatosHistoricos: async (minutos = 60, deviceName = null) => {
+    try {
+      const params = { minutos };
+      if (deviceName) {
+        params.device_name = deviceName;
+      }
+      const response = await api.get('/historicos', { params });
+      return response.data;
+    } catch (error) {
+      console.error('Error obteniendo datos históricos:', error);
+      throw error;
+    }
+  },
+
+  getEstadisticasHistoricas: async (minutos = 60) => {
+    try {
+      const response = await api.get('/estadisticas/historicas', {
+        params: { minutos }
+      });
+      return response.data;
+    } catch (error) {
+      console.error('Error obteniendo estadísticas históricas:', error);
+      throw error;
+    }
   }
 };
 

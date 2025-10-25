@@ -16,6 +16,7 @@ export const SensorProvider = ({ children }) => {
   const [sensoresActuales, setSensoresActuales] = useState({});
   const [alertasActivas, setAlertasActivas] = useState([]);
   const [estaciones, setEstaciones] = useState([]);
+  const [datosHistoricos, setDatosHistoricos] = useState(null);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
   const [wsConnected, setWsConnected] = useState(false);
@@ -113,6 +114,17 @@ export const SensorProvider = ({ children }) => {
     }
   }, []);
 
+  const cargarDatosHistoricos = useCallback(async (minutos = 60) => {
+    try {
+      const estadisticas = await apiService.getEstadisticasHistoricas(minutos);
+      setDatosHistoricos(estadisticas);
+      return estadisticas;
+    } catch (err) {
+      console.error('Error cargando datos históricos:', err);
+      return null;
+    }
+  }, []);
+
   useEffect(() => {
     cargarDatosIniciales();
     solicitarPermisosNotificacion();
@@ -143,12 +155,14 @@ export const SensorProvider = ({ children }) => {
     sensoresActuales,
     alertasActivas,
     estaciones,
+    datosHistoricos,
     loading,
     error,
     wsConnected,
     ultimaActualizacion,
     marcarAlertaAtendida,
-    recargarDatos: cargarDatosIniciales
+    recargarDatos: cargarDatosIniciales,
+    cargarDatosHistoricos
   };
 
   return (
