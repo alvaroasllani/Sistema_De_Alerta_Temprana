@@ -1,7 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import './App.css';
 import { 
-  FaMountain, 
   FaBell, 
   FaThermometerHalf, 
   FaCloudRain, 
@@ -17,6 +16,7 @@ import { useSensor } from './context/SensorContext';
 import { useAuth } from './context/AuthContext';
 import config from './config/config';
 import Login from './components/Login';
+import logo from './img/logo2.png';
 
 function App() {
   const [activeTab, setActiveTab] = useState('inicio');
@@ -445,8 +445,9 @@ function App() {
     <div className="App">
       <header className="header">
         <div className="header-left">
-          <div className="logo-icon"><FaMountain /></div>
-          <h1 className="header-title">Sistema de Alerta Temprana – Cuenca Taquiña</h1>
+          <div className="logo-container">
+            <img src={logo} alt="Sistema de Alerta Temprana" className="logo-image" />
+          </div>
           <div className={`connection-status ${wsConnected ? 'connected' : 'disconnected'}`}>
             <FaCircle />
             <span>{wsConnected ? 'Conectado' : 'Desconectado'}</span>
@@ -472,18 +473,6 @@ function App() {
           >
             Datos Históricos
           </button>
-          <button
-            className={`tab ${activeTab === 'alertas' ? 'active' : ''}`}
-            onClick={() => setActiveTab('alertas')}
-          >
-            Alertas
-          </button>
-          <button
-            className={`tab ${activeTab === 'informacion' ? 'active' : ''}`}
-            onClick={() => setActiveTab('informacion')}
-          >
-            Información
-          </button>
         </div>
 
         <div className="header-right">
@@ -506,8 +495,6 @@ function App() {
       {activeTab === 'inicio' && renderMonitoreoPage()}
       {activeTab === 'actuales' && renderStationsPage()}
       {activeTab === 'historicos' && renderHistoricalPage()}
-      {activeTab === 'alertas' && <div className="stations-page"><h1 className="stations-title">Alertas - Próximamente</h1></div>}
-      {activeTab === 'informacion' && <div className="stations-page"><h1 className="stations-title">Información - Próximamente</h1></div>}
     </div>
   );
 }

@@ -16,7 +16,8 @@
     left: 0;
     right: 0;
     bottom: 0;
-    background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+    background: linear-gradient(135deg, rgba(45, 183, 179, 0.15) 0%, rgba(26, 115, 232, 0.15) 100%),
+        url('../img/img1.jpg') center/cover fixed;
     z-index: 0;
 }
 
@@ -26,20 +27,22 @@
     left: 0;
     right: 0;
     bottom: 0;
-    background: url('data:image/svg+xml,<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1440 320"><path fill="%23ffffff" fill-opacity="0.1" d="M0,96L48,112C96,128,192,160,288,160C384,160,480,128,576,112C672,96,768,96,864,112C960,128,1056,160,1152,165.3C1248,171,1344,149,1392,138.7L1440,128L1440,320L1392,320C1344,320,1248,320,1152,320C1056,320,960,320,864,320C768,320,672,320,576,320C480,320,384,320,288,320C192,320,96,320,48,320L0,320Z"></path></svg>') no-repeat bottom;
-    background-size: cover;
+    /* background: rgba(15, 20, 30, 0.9); */
+    /* backdrop-filter: blur(8px); */
 }
 
 .login-card {
     position: relative;
     z-index: 1;
-    background: white;
+    background: rgba(30, 37, 48, 0.95);
     border-radius: 20px;
-    box-shadow: 0 20px 60px rgba(0, 0, 0, 0.3);
+    box-shadow: 0 20px 60px rgba(0, 0, 0, 0.5);
     padding: 3rem;
     width: 100%;
     max-width: 450px;
     animation: slideUp 0.5s ease-out;
+    backdrop-filter: blur(15px);
+    border: 1px solid rgba(255, 255, 255, 0.1);
 }
 
 @keyframes slideUp {
@@ -63,26 +66,31 @@
     display: inline-flex;
     align-items: center;
     justify-content: center;
-    width: 80px;
-    height: 80px;
-    background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+    width: 100px;
+    height: 100px;
+    background: rgba(255, 255, 255, 0.95);
     border-radius: 50%;
     margin-bottom: 1rem;
-    font-size: 2.5rem;
-    color: white;
-    box-shadow: 0 10px 30px rgba(102, 126, 234, 0.3);
+    padding: 15px;
+    box-shadow: 0 10px 30px rgba(45, 183, 179, 0.5);
+}
+
+.login-logo-image {
+    width: 100%;
+    height: 100%;
+    object-fit: contain;
 }
 
 .login-header h1 {
     font-size: 1.75rem;
-    color: #1e293b;
+    color: #ffffff;
     margin: 0.5rem 0 0.25rem 0;
     font-weight: 700;
 }
 
 .login-header p {
     font-size: 1rem;
-    color: #64748b;
+    color: rgba(255, 255, 255, 0.7);
     margin: 0;
 }
 
@@ -118,7 +126,7 @@
 .form-group label {
     font-size: 0.875rem;
     font-weight: 600;
-    color: #334155;
+    color: rgba(255, 255, 255, 0.9);
 }
 
 .input-wrapper {
@@ -130,27 +138,30 @@
 .input-icon {
     position: absolute;
     left: 1rem;
-    color: #94a3b8;
+    color: #2db7b3;
     font-size: 1rem;
 }
 
 .input-wrapper input {
     width: 100%;
     padding: 0.875rem 1rem 0.875rem 3rem;
-    border: 2px solid #e2e8f0;
+    border: 2px solid rgba(45, 183, 179, 0.3);
     border-radius: 10px;
     font-size: 1rem;
     transition: all 0.3s ease;
     outline: none;
+    background: rgba(40, 50, 65, 0.5);
+    color: #ffffff;
 }
 
 .input-wrapper input:focus {
-    border-color: #667eea;
-    box-shadow: 0 0 0 3px rgba(102, 126, 234, 0.1);
+    border-color: #2db7b3;
+    box-shadow: 0 0 0 3px rgba(45, 183, 179, 0.2);
+    background: rgba(40, 50, 65, 0.7);
 }
 
 .input-wrapper input::placeholder {
-    color: #cbd5e1;
+    color: rgba(255, 255, 255, 0.4);
 }
 
 .toggle-password {
@@ -158,7 +169,7 @@
     right: 1rem;
     background: none;
     border: none;
-    color: #94a3b8;
+    color: #2db7b3;
     font-size: 1.1rem;
     cursor: pointer;
     padding: 0.5rem;
@@ -170,7 +181,7 @@
 }
 
 .toggle-password:hover {
-    color: #667eea;
+    color: #1a9f9f;
     transform: scale(1.1);
 }
 
@@ -180,7 +191,7 @@
 
 .login-button {
     padding: 1rem;
-    background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+    background: linear-gradient(135deg, #2db7b3 0%, #1a9f9f 100%);
     color: white;
     border: none;
     border-radius: 10px;
@@ -193,7 +204,7 @@
 
 .login-button:hover {
     transform: translateY(-2px);
-    box-shadow: 0 10px 25px rgba(102, 126, 234, 0.3);
+    box-shadow: 0 10px 25px rgba(45, 183, 179, 0.5);
 }
 
 .login-button:active {
@@ -207,7 +218,7 @@
 
 .login-footer p {
     font-size: 0.75rem;
-    color: #94a3b8;
+    color: rgba(255, 255, 255, 0.5);
     margin: 0;
 }
 
