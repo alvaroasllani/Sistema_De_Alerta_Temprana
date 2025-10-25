@@ -17,16 +17,15 @@ module.exports = (sequelize, DataTypes) => {
     }
   }
   lecturas.init({
-    device_id: {
+    device_name: {
       type: DataTypes.STRING(50),
       allowNull: false
     },
     estacion_id: DataTypes.INTEGER,
-    temperatura:DataTypes.DECIMAL(5,2),
-    humedad:DataTypes.DECIMAL(5,2),
-    lluvia:DataTypes.DECIMAL(5,2),
-    caudal:DataTypes.DECIMAL(5,2),
-    presion:DataTypes.DECIMAL(5,2)
+    temperatura: DataTypes.DECIMAL(4, 1),   // -999.9 a 999.9%
+    humedad: DataTypes.DECIMAL(4, 1),       // -999.9 a 999.9%
+    caudal: DataTypes.DECIMAL(6, 3),        // -999.999 a 999.999L/s
+    precipitacion: DataTypes.DECIMAL(5, 1)  // -99999.9 a 99999.9hPa
   }, {
     sequelize,
     modelName: 'lecturas',
