@@ -11,14 +11,6 @@ module.exports = {
         humedad: 50.9,
         precipitacion: 600.3,
         caudal: 80.5
-      },
-      {
-        device_name: 'esp32-02',
-        estacion_id: 2,
-        temperatura: 24.5,
-        humedad: 45.9,
-        precipitacion: 550.3,
-        caudal: 70.5
       }
     ], {});
   },

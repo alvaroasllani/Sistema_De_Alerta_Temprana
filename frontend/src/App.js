@@ -68,11 +68,10 @@ function App() {
     return <Login onLogin={login} />;
   }
 
-  const getIntensidadLluvia = (lluvia) => {
-    if (lluvia === 0) return 'Ninguna';
-    if (lluvia < 2) return 'Ligera';
-    if (lluvia < 5) return 'Moderada';
-    return 'Fuerte';
+  const getIntensidadPrecipitacion = (precipitacion) => {
+    if (precipitacion >= 1000) return 'Critico';
+    if (precipitacion >= 730) return 'Moderada';
+    return 'Normal';
   };
 
   const getNivelCaudal = (caudal) => {
@@ -122,15 +121,15 @@ function App() {
 
                   <div className="station-metric">
                     <div className="metric-info">
-                      <div className="metric-type">Lluvia</div>
+                      <div className="metric-type">Precipitacion</div>
                       <div className={`metric-main-value ${
-                        (sensor.lluvia || 0) > config.THRESHOLDS.LLUVIA_ALTA ? 'warning' : 
-                        (sensor.lluvia || 0) === 0 ? 'normal' : ''
+                        (sensor.precipitacion || 0) > config.THRESHOLDS.PRECIPITACION_ALTA ? 'critical' : 
+                        (sensor.precipitacion || 0) > config.THRESHOLDS.PRECIPITACION_MODERADA ? 'warning' : ''
                       }`}>
-                        {sensor.lluvia?.toFixed(1) || 0}mm/h
+                        {sensor.precipitacion?.toFixed(2) || 0}mm/h
                       </div>
                       <div className="metric-secondary">
-                        Intensidad: {getIntensidadLluvia(sensor.lluvia || 0)}
+                        Intensidad: {getIntensidadPrecipitacion(sensor.precipitacion || 0)}
                       </div>
                     </div>
                     <div className="metric-icon"><FaCloudRain /></div>
@@ -338,20 +337,20 @@ function App() {
   const calcularPromedios = () => {
     const sensoresArray = Object.values(sensoresActuales);
     if (sensoresArray.length === 0) {
-      return { temperatura: 0, humedad: 0, lluvia: 0, caudal: 0 };
+      return { temperatura: 0, humedad: 0, precipitacion: 0, caudal: 0 };
     }
 
     const sum = sensoresArray.reduce((acc, sensor) => ({
       temperatura: acc.temperatura + (sensor.temperatura || 0),
       humedad: acc.humedad + (sensor.humedad || 0),
-      lluvia: acc.lluvia + (sensor.lluvia || 0),
+      precipitacion: acc.precipitacion + (sensor.precipitacion || 0),
       caudal: acc.caudal + (sensor.caudal || 0)
-    }), { temperatura: 0, humedad: 0, lluvia: 0, caudal: 0 });
+    }), { temperatura: 0, humedad: 0, precipitacion: 0, caudal: 0 });
 
     return {
       temperatura: (sum.temperatura / sensoresArray.length).toFixed(1),
       humedad: Math.round(sum.humedad / sensoresArray.length),
-      lluvia: (sum.lluvia / sensoresArray.length).toFixed(1),
+      precipitacion: (sum.precipitacion / sensoresArray.length).toFixed(1),
       caudal: (sum.caudal / sensoresArray.length).toFixed(1)
     };
   };
@@ -383,8 +382,8 @@ function App() {
           </div>
 
           <div className="metric-card">
-            <div className="metric-label">Lluvia</div>
-            <div className="metric-value">{promedios.lluvia} mm</div>
+            <div className="metric-label">Precipitacion</div>
+            <div className="metric-value">{promedios.precipitacion} mm</div>
           </div>
 
           <div className="metric-card">

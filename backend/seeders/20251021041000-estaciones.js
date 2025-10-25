@@ -8,11 +8,6 @@ module.exports = {
         codigo: 'esp32-01',
         nombre: 'Estacion 1',
         ubicacion: 'Cualquier Punto'
-      },
-      {
-        codigo: 'esp32-02',
-        nombre: 'Estacion 2',
-        ubicacion: 'Cualquier Punto'
       }
     ], {});
   },

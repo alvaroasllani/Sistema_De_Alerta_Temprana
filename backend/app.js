@@ -68,15 +68,7 @@ mqttClient.on('message', async (topic, message) => {
     };
     
     // Emitir datos del sensor al frontend con el formato esperado
-    io.emit('sensor:data', {
-      id: sensor_data.device_name,
-      nombre: sensor_data.device_name,
-      temperatura: sensor_data.temperatura,
-      humedad: sensor_data.humedad,
-      caudal: sensor_data.caudal,
-      lluvia: sensor_data.precipitacion,
-      timestamp: new Date().toISOString()
-    });
+    io.emit('sensor:data', sensor_data);
 
     try {
       const lectura = await insertReading(sensor_data);

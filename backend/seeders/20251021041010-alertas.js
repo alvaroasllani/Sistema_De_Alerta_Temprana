@@ -9,12 +9,6 @@ module.exports = {
         descripcion: 'El río San Pedro ha superado el umbral crítico',
         tipo: 'critical',
         estacion_id: 1
-      },
-      {
-        titulo: 'Lluvia intensa',
-        descripcion: 'Precipitaciones superiores a 20 mm/h',
-        tipo: 'warning',
-        estacion_id: 2
       }
     ], {});
   },

@@ -46,7 +46,7 @@ export const SensorProvider = ({ children }) => {
     data.temperatura = Number(data.temperatura);
     data.humedad = Number(data.humedad);
     data.caudal = Number(data.caudal);
-    data.lluvia = Number(data.lluvia);
+    data.precipitacion = Number(data.precipitacion);
 
     setSensoresActuales(prev => ({
       ...prev,

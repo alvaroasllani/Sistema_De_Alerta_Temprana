@@ -22,14 +22,15 @@ const apiService = {
     try {
       const response = await api.get('/lecturas/actuales');
       // Normalizar datos
+      console.log('Datos crudos:', response);
       const payload = response.data.reduce((acc, red) => {
-        acc[red.nombre] = {
-          id: red.nombre,
+        acc[red.id] = {
+          id: red.id,
+          estacion_id: red.estacion_id,
           nombre: red.nombre,
           humedad : Number(red.humedad),
           caudal: Number(red.caudal),
-          lluvia: Number(red.lluvia),
-          presion: Number(red.presion),
+          precipitacion: Number(red.precipitacion),
           temperatura: Number(red.temperatura),
           timestamp: red.timestamp
         };
@@ -91,9 +92,7 @@ const apiService = {
 
   marcarAlertaAtendida: async (alertaId) => {
     try {
-      console.log('llego xD');
       const response = await api.put(`/alertas/${alertaId}/atender`);
-      console.log('Fallo ?');
       return response.data;
     } catch (error) {
       console.error('Error marcando alerta como atendida:', error);
