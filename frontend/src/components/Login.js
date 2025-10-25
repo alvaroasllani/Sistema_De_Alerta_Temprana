@@ -1,6 +1,7 @@
 import React, { useState } from 'react';
-import { FaMountain, FaUser, FaLock, FaExclamationCircle, FaEye, FaEyeSlash } from 'react-icons/fa';
+import { FaUser, FaLock, FaExclamationCircle, FaEye, FaEyeSlash } from 'react-icons/fa';
 import './Login.css';
+import logo from '../img/logo2.png';
 
 function Login({ onLogin }) {
   const [email, setEmail] = useState('');
@@ -29,7 +30,7 @@ function Login({ onLogin }) {
       <div className="login-card">
         <div className="login-header">
           <div className="login-logo">
-            <FaMountain />
+            <img src={logo} alt="Logo" className="login-logo-image" />
           </div>
           <h1>Sistema de Alerta Temprana</h1>
           <p>Cuenca Taquiña</p>
