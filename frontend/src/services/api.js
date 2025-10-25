@@ -21,8 +21,7 @@ const apiService = {
   getSensoresActuales: async () => {
     try {
       const response = await api.get('/lecturas/actuales');
-      // Normalizar datos
-      console.log('Datos crudos:', response);
+      // Normalizar datossensoresActuales
       const payload = response.data.reduce((acc, red) => {
         acc[red.id] = {
           id: red.id,
