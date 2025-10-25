@@ -5,7 +5,6 @@ const { Server } = require('socket.io');
 const mqtt = require('mqtt');
 const sensor = require('./routes/sensores.js');
 
-const { lecturas } = require('./models');
 const { emitirAlertaSiCorresponde, insertReading } = require('./db');
 
 // MQTT Configuration
@@ -51,39 +50,29 @@ mqttClient.on('error', (err) => {
 
 mqttClient.on('message', async (topic, message) => {
   try {
-    const payload = message.toString();
-    console.log(`Mensaje MQTT recibido en ${topic}: ${payload}`);
-    
-    // Parse JSON payload
-    let data;
+    let payload;
     try {
-      data = JSON.parse(payload);
+      payload = JSON.parse(message.toString());
     } catch (parseError) {
       console.error('Error parseando JSON:', parseError);
       return;
     }
     
-    // Create sensor data object based on topic
-    let sensorData = {
-      device_id: 'esp32-01',
+    let sensor_data = {
+      device_name: 'esp32-01',
       estacion_id: 1,
-      temperatura: parseFloat(data.temp) || 0,
-      humedad: parseFloat(data.humedad) || 0,
-      lluvia: parseFloat(data.precipitacion) || 0,
-      caudal: parseFloat(data.caudal) || 0,
-      presion: parseFloat(data.presion) || 0
+      temperatura: parseFloat(payload.temp) || 0,
+      humedad: parseFloat(payload.humedad) || 0,
+      caudal: parseFloat(payload.caudal) || 0,
+      precipitacion: parseFloat(payload.precipitacion) || 0
     };
     
-    // Emit data to all connected clients
-    io.emit('sensor:data', sensorData);
-    
-    // Save reading to database
+    io.emit('sensor:data', sensor_data);
+
     try {
-      const lectura = await insertReading(sensorData);
-      // Evaluate if alerts should be generated
+      const lectura = await insertReading(sensor_data);
       const alertasEmitidas = await emitirAlertaSiCorresponde(lectura);
       
-      // If there are new alerts, emit them via socket
       if (alertasEmitidas && alertasEmitidas.length > 0) {
         io.emit('alertas:nueva', alertasEmitidas);
       }
