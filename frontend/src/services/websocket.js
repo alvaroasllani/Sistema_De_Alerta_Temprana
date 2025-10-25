@@ -10,7 +10,8 @@ class WebSocketService {
       onAlert: [],
       onConnect: [],
       onDisconnect: [],
-      onError: []
+      onError: [],
+      onSensorHistorico: []
     };
   }
 
@@ -41,6 +42,10 @@ class WebSocketService {
 
     this.socket.on('sensor:data', (data) => {
       this.listeners.onSensorData.forEach(callback => callback(data));
+    });
+
+    this.socket.on('sensor:historico', (data) => {
+      this.listeners.onSensorHistorico.forEach(callback => callback(data));
     });
 
     this.socket.on('alert:new', (alert) => {

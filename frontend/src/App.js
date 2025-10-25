@@ -81,7 +81,7 @@ function App() {
   };
 
   const renderStationsPage = () => {
-    const sensoresArray = Object.values(sensoresActuales);
+    const sensoresArray = Object.values(sensoresActuales || {});
 
     if (loading) {
       return (
@@ -94,78 +94,93 @@ function App() {
       );
     }
 
+    // Si no hay sensores, mostrar mensaje
+    if (sensoresArray.length === 0) {
+      return (
+        <div className="stations-page">
+          <h1 className="stations-title">Monitoreo por Estaciones</h1>
+          <div className="no-stations">No hay estaciones disponibles</div>
+        </div>
+      );
+    }
+
+    // Seleccionar la lectura más reciente entre todos los sensores (una sola estación visible)
+    const latestSensor = sensoresArray.reduce((best, s) => {
+      const bestTime = new Date(best.updatedAt || best.createdAt || best.timestamp || 0).getTime();
+      const sTime = new Date(s.updatedAt || s.createdAt || s.timestamp || Date.now()).getTime();
+      return sTime >= bestTime ? s : best;
+    }, sensoresArray[0]);
+
+    const sensor = latestSensor;
+    const alertasNodo = alertasActivas.filter(a => a.estacion_id === sensor.estacion_id && a.activa);
+    const alertaPrincipal = alertasNodo.find(a => a.tipo === 'critical') || alertasNodo[0];
+
     return (
       <div className="stations-page">
-        <h1 className="stations-title">Monitoreo por Estaciones</h1>
-        <div className="stations-grid">
-          {sensoresArray.map((sensor) => {
-            const alertasNodo = alertasActivas.filter(a => a.estacion_id === sensor.id && a.activa);
-            const alertaPrincipal = alertasNodo.find(a => a.tipo === 'critical') || alertasNodo[0];
+        <h1 className="stations-title">Monitoreo por Estación (actual)</h1>
+        <div className="stations-grid single">
+          <div key={sensor.estacion_id || sensor.device_name} className="station-card">
+            <div className="station-header">
+              <h3 className="station-name">{sensor.device_name || sensor.id}</h3>
+              <div className="station-timestamp">{new Date(sensor.updatedAt || sensor.createdAt || sensor.timestamp || Date.now()).toLocaleString()}</div>
+            </div>
 
-            return (
-              <div key={sensor.id} className="station-card">
-                <div className="station-header">
-                  <h3 className="station-name">{sensor.nombre || sensor.id}</h3>
-                </div>
-                
-                <div className="station-metrics">
-                  <div className="station-metric">
-                    <div className="metric-info">
-                      <div className="metric-type">Temperatura y Humedad</div>
-                      <div className="metric-main-value">
-                        {sensor.temperatura?.toFixed(1) || 0}°C / {sensor.humedad || 0}%
-                      </div>
-                    </div>
-                    <div className="metric-icon"><FaThermometerHalf /></div>
-                  </div>
-
-                  <div className="station-metric">
-                    <div className="metric-info">
-                      <div className="metric-type">Precipitacion</div>
-                      <div className={`metric-main-value ${
-                        (sensor.precipitacion || 0) > config.THRESHOLDS.PRECIPITACION_ALTA ? 'critical' : 
-                        (sensor.precipitacion || 0) > config.THRESHOLDS.PRECIPITACION_MODERADA ? 'warning' : ''
-                      }`}>
-                        {sensor.precipitacion?.toFixed(2) || 0}mm/h
-                      </div>
-                      <div className="metric-secondary">
-                        Intensidad: {getIntensidadPrecipitacion(sensor.precipitacion || 0)}
-                      </div>
-                    </div>
-                    <div className="metric-icon"><FaCloudRain /></div>
-                  </div>
-
-                  <div className="station-metric">
-                    <div className="metric-info">
-                      <div className="metric-type">Caudal</div>
-                      <div className={`metric-main-value ${
-                        getNivelCaudal(sensor.caudal || 0) === 'Normal' ? 'normal' : 
-                        getNivelCaudal(sensor.caudal || 0) === 'Bajo' ? '' : 'critical'
-                      }`}>
-                        {sensor.caudal?.toFixed(1) || 0} m³/s
-                      </div>
-                      <div className="metric-secondary">
-                        Nivel: {getNivelCaudal(sensor.caudal || 0)}
-                      </div>
-                    </div>
-                    <div className="metric-icon"><FaWater /></div>
+            <div className="station-metrics">
+              <div className="station-metric">
+                <div className="metric-info">
+                  <div className="metric-type">Temperatura y Humedad</div>
+                  <div className="metric-main-value">
+                    {sensor.temperatura?.toFixed(1) || 0}°C / {sensor.humedad || 0}%
                   </div>
                 </div>
-
-                {alertaPrincipal && (
-                  <div className={`station-alert ${alertaPrincipal.tipo}`}>
-                    <div className="station-alert-icon">
-                      {alertaPrincipal.tipo === 'warning' ? <FaExclamationTriangle /> : <FaExclamationCircle />}
-                    </div>
-                    <div className="station-alert-content">
-                      <div className="station-alert-title">{alertaPrincipal.titulo}</div>
-                      <div className="station-alert-description">{alertaPrincipal.descripcion}</div>
-                    </div>
-                  </div>
-                )}
+                <div className="metric-icon"><FaThermometerHalf /></div>
               </div>
-            );
-          })}
+
+              <div className="station-metric">
+                <div className="metric-info">
+                  <div className="metric-type">Precipitacion</div>
+                  <div className={`metric-main-value ${
+                    (sensor.precipitacion || 0) > config.THRESHOLDS.PRECIPITACION_ALTA ? 'critical' : 
+                    (sensor.precipitacion || 0) > config.THRESHOLDS.PRECIPITACION_MODERADA ? 'warning' : ''
+                  }`}>
+                    {sensor.precipitacion?.toFixed(2) || 0}mm/h
+                  </div>
+                  <div className="metric-secondary">
+                    Intensidad: {getIntensidadPrecipitacion(sensor.precipitacion || 0)}
+                  </div>
+                </div>
+                <div className="metric-icon"><FaCloudRain /></div>
+              </div>
+
+              <div className="station-metric">
+                <div className="metric-info">
+                  <div className="metric-type">Caudal</div>
+                  <div className={`metric-main-value ${
+                    getNivelCaudal(sensor.caudal || 0) === 'Normal' ? 'normal' : 
+                    getNivelCaudal(sensor.caudal || 0) === 'Bajo' ? '' : 'critical'
+                  }`}>
+                    {sensor.caudal?.toFixed(1) || 0} m³/s
+                  </div>
+                  <div className="metric-secondary">
+                    Nivel: {getNivelCaudal(sensor.caudal || 0)}
+                  </div>
+                </div>
+                <div className="metric-icon"><FaWater /></div>
+              </div>
+            </div>
+
+            {alertaPrincipal && (
+              <div className={`station-alert ${alertaPrincipal.tipo}`}>
+                <div className="station-alert-icon">
+                  {alertaPrincipal.tipo === 'warning' ? <FaExclamationTriangle /> : <FaExclamationCircle />}
+                </div>
+                <div className="station-alert-content">
+                  <div className="station-alert-title">{alertaPrincipal.titulo}</div>
+                  <div className="station-alert-description">{alertaPrincipal.descripcion}</div>
+                </div>
+              </div>
+            )}
+          </div>
         </div>
       </div>
     );

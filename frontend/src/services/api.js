@@ -27,7 +27,7 @@ const apiService = {
         acc[red.id] = {
           id: red.id,
           estacion_id: red.estacion_id,
-          nombre: red.nombre,
+          device_name: red.device_name,
           humedad : Number(red.humedad),
           caudal: Number(red.caudal),
           precipitacion: Number(red.precipitacion),

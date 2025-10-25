@@ -67,11 +67,12 @@ mqttClient.on('message', async (topic, message) => {
       precipitacion: parseFloat(payload.precipitacion) || 0
     };
     
-    // Emitir datos del sensor al frontend con el formato esperado
-    io.emit('sensor:data', sensor_data);
+    
 
     try {
       const lectura = await insertReading(sensor_data);
+      // Emitir datos del sensor al frontend con el formato esperado
+      io.emit('sensor:data', lectura);
       const alertasEmitidas = await emitirAlertaSiCorresponde(lectura);
       
       if (alertasEmitidas && alertasEmitidas.length > 0) {

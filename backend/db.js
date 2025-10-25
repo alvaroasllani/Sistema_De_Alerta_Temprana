@@ -61,7 +61,7 @@ async function getAlertasActivas() {
 async function getLecturasActuales() {
 	try {
 		const [rows] = await sequelize.query(`
-			SELECT id, estacion_id, device_name AS nombre, temperatura, humedad, precipitacion, caudal, createdAt as timestamp
+			SELECT id, estacion_id, device_name, temperatura, humedad, precipitacion, caudal, createdAt as timestamp
 			FROM lecturas 
 			WHERE id IN (
 				SELECT MAX(id) 
@@ -196,8 +196,8 @@ async function emitirAlertaSiCorresponde(lectura) {
  */
 async function insertReading(reading) {
   try {
-		const alerta = await lecturas.create(reading);
-		return alerta;
+		const lectura = await lecturas.create(reading);
+		return lectura;
 	} catch (err) {
 		console.log('Error al insertar la lectura', err);
 		throw err;
