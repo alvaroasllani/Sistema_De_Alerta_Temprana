@@ -59,8 +59,32 @@ router_sensor.put('/alertas/:id/atender', async (req, res) => {
 });
 
 /**
- * 5️⃣ (Opcional) Obtener estadísticas simples
+ * 5️⃣ Obtener datos históricos
  */
-// router_sensor.get('/estadisticas', async (req, res) => {});
+router_sensor.get('/historicos', async (req, res) => {
+  try {
+    const minutos = parseInt(req.query.minutos) || 60;
+    const deviceName = req.query.device_name || null;
+    const rows = await db.getDatosHistoricos(minutos, deviceName);
+    return res.send(rows);
+  } catch (err) {
+    console.error('Error al obtener datos históricos:', err);
+    res.status(500).json({ error: 'Error al obtener datos históricos' });
+  }
+});
+
+/**
+ * 6️⃣ Obtener estadísticas históricas para gráficas
+ */
+router_sensor.get('/estadisticas/historicas', async (req, res) => {
+  try {
+    const minutos = parseInt(req.query.minutos) || 60;
+    const stats = await db.getEstadisticasHistoricas(minutos);
+    return res.send(stats);
+  } catch (err) {
+    console.error('Error al obtener estadísticas históricas:', err);
+    res.status(500).json({ error: 'Error al obtener estadísticas' });
+  }
+});
 
 module.exports = router_sensor;

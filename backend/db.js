@@ -205,6 +205,99 @@ async function insertReading(reading) {
 };
 
 /**
+ * Obtiene datos históricos de lecturas con agregación temporal
+ * @param {number} minutos - Número de minutos de historial a obtener (por defecto 60)
+ * @param {string} deviceName - Nombre del dispositivo específico (opcional)
+ * @returns {Promise<Array>} Array con lecturas históricas
+ * @throws {Error} Si ocurre un error al consultar la base de datos
+ */
+async function getDatosHistoricos(minutos = 60, deviceName = null) {
+	try {
+		const fechaLimite = new Date(Date.now() - minutos * 60 * 1000);
+		
+		let whereClause = `WHERE createdAt >= '${fechaLimite.toISOString()}'`;
+		if (deviceName) {
+			whereClause += ` AND device_name = '${deviceName}'`;
+		}
+		
+		const [rows] = await sequelize.query(`
+			SELECT 
+				device_name,
+				estacion_id,
+				DATE_FORMAT(createdAt, '%Y-%m-%d %H:%i:00') as fecha_minuto,
+				AVG(temperatura) as temperatura,
+				AVG(humedad) as humedad,
+				AVG(precipitacion) as precipitacion,
+				AVG(caudal) as caudal,
+				COUNT(*) as num_lecturas,
+				MAX(createdAt) as timestamp
+			FROM lecturas 
+			${whereClause}
+			GROUP BY device_name, estacion_id, fecha_minuto
+			ORDER BY fecha_minuto DESC
+			LIMIT 100
+		`);
+		return rows;
+	} catch (err) {
+		console.error('Error al obtener datos históricos:', err);
+		throw err;
+	}
+}
+
+/**
+ * Obtiene estadísticas de los últimos N minutos para gráficas
+ * @param {number} minutos - Número de minutos de historial (por defecto 60)
+ * @returns {Promise<Object>} Objeto con datos para gráficas y tabla
+ * @throws {Error} Si ocurre un error al consultar la base de datos
+ */
+async function getEstadisticasHistoricas(minutos = 60) {
+	try {
+		const lecturas = await getDatosHistoricos(minutos);
+		
+		// Agrupar por device_name
+		const porDispositivo = {};
+		lecturas.forEach(lectura => {
+			if (!porDispositivo[lectura.device_name]) {
+				porDispositivo[lectura.device_name] = [];
+			}
+			porDispositivo[lectura.device_name].push(lectura);
+		});
+		
+		// Calcular promedios globales
+		const promedios = {
+			temperatura: 0,
+			humedad: 0,
+			precipitacion: 0,
+			caudal: 0
+		};
+		
+		if (lecturas.length > 0) {
+			lecturas.forEach(l => {
+				promedios.temperatura += parseFloat(l.temperatura || 0);
+				promedios.humedad += parseFloat(l.humedad || 0);
+				promedios.precipitacion += parseFloat(l.precipitacion || 0);
+				promedios.caudal += parseFloat(l.caudal || 0);
+			});
+			
+			promedios.temperatura = (promedios.temperatura / lecturas.length).toFixed(2);
+			promedios.humedad = (promedios.humedad / lecturas.length).toFixed(2);
+			promedios.precipitacion = (promedios.precipitacion / lecturas.length).toFixed(2);
+			promedios.caudal = (promedios.caudal / lecturas.length).toFixed(2);
+		}
+		
+		return {
+			lecturas: lecturas.slice(0, 20), // Últimas 20 lecturas para la tabla
+			porDispositivo,
+			promedios,
+			totalLecturas: lecturas.length
+		};
+	} catch (err) {
+		console.error('Error al obtener estadísticas históricas:', err);
+		throw err;
+	}
+}
+
+/**
  * Exporta todas las funciones de base de datos disponibles
  * @module db
  */
@@ -214,6 +307,8 @@ module.exports = {
 	getEstaciones,          		// Obtiene todas las estaciones registradas
 	atenderAlerta,          		// Marca una alerta como atendida
 	emitirAlertaSiCorresponde, 	// Evalúa lecturas y genera alertas si corresponde
-  insertReading           		// Inserta una nueva lectura de sensor y retorna el objeto creado
+  insertReading,           		// Inserta una nueva lectura de sensor y retorna el objeto creado
+	getDatosHistoricos,				  // Obtiene datos históricos con agregación temporal
+	getEstadisticasHistoricas   // Obtiene estadísticas para gráficas y tabla
 };
 
