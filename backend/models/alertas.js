@@ -21,20 +21,20 @@ module.exports = (sequelize, DataTypes) => {
       type: DataTypes.STRING(100),
       allowNull: false
     },
-    descripcion: DataTypes.TEXT,
+    descripcion: {
+      type: DataTypes.TEXT
+    },
     tipo: {
       type: DataTypes.ENUM('informative', 'warning', 'critical'),
       allowNull: false,
       defaultValue: 'informative'
     },
-    estacion_id:DataTypes.INTEGER,
+    estacion_id: {
+      type: DataTypes.INTEGER
+    },
     activa: {
       type: DataTypes.BOOLEAN,
       defaultValue: true
-    },
-    atendida: {
-      type: DataTypes.BOOLEAN,
-      defaultValue: false
     }
   }, {
     sequelize,

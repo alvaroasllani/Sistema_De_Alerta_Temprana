@@ -31,9 +31,7 @@ module.exports = (sequelize, DataTypes) => {
       type: DataTypes.STRING(100),
       allowNull: false
     },
-    ubicacion: DataTypes.STRING(150),
-    latitud: DataTypes.DECIMAL(10,6),
-    longitud: DataTypes.DECIMAL(10,6)
+    ubicacion: DataTypes.STRING(150)
   }, {
     sequelize,
     modelName: 'estaciones',

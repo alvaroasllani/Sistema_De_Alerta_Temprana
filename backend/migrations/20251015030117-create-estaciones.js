@@ -21,12 +21,6 @@ module.exports = {
       ubicacion: {
         type: Sequelize.STRING(150)
       },
-      latitud: {
-        type: Sequelize.DECIMAL(10, 6)
-      },
-      longitud: {
-        type: Sequelize.DECIMAL(10, 6)
-      },
       createdAt: {
         allowNull: false,
         type: Sequelize.DATE,
