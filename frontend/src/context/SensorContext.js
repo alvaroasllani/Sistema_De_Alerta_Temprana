@@ -81,7 +81,7 @@ export const SensorProvider = ({ children }) => {
       setAlertasActivas(prev => 
         prev.map(alerta => 
           alerta.id === alertaId 
-            ? { ...alerta, atendida: true } 
+            ? { ...alerta, activa: false } 
             : alerta
         )
       );

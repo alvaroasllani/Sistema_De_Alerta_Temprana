@@ -100,7 +100,7 @@ function App() {
         <h1 className="stations-title">Monitoreo por Estaciones</h1>
         <div className="stations-grid">
           {sensoresArray.map((sensor) => {
-            const alertasNodo = alertasActivas.filter(a => a.id === sensor.id && !a.activa);
+            const alertasNodo = alertasActivas.filter(a => a.estacion_id === sensor.id && a.activa);
             const alertaPrincipal = alertasNodo.find(a => a.tipo === 'critical') || alertasNodo[0];
 
             return (
@@ -358,7 +358,7 @@ function App() {
 
   const renderMonitoreoPage = () => {
     const promedios = calcularPromedios();
-    const alertasNoAtendidas = alertasActivas.filter(a => !a.atendida);
+    const alertasNoAtendidas = alertasActivas.filter(a => a.activa);
 
     if (loading) {
       return (
@@ -479,9 +479,9 @@ function App() {
           <div className="time">{currentTime}</div>
           <div className="notification-icon">
             <FaBell />
-            {alertasActivas.filter(a => a.activa === 1).length > 0 && (
+            {alertasActivas.filter(a => a.activa).length > 0 && (
               <span className="notification-badge">
-                {alertasActivas.filter(a => a.activa === 1).length}
+                {alertasActivas.filter(a => a.activa).length}
               </span>
             )}
           </div>

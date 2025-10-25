@@ -67,14 +67,27 @@ mqttClient.on('message', async (topic, message) => {
       precipitacion: parseFloat(payload.precipitacion) || 0
     };
     
-    io.emit('sensor:data', sensor_data);
+    // Emitir datos del sensor al frontend con el formato esperado
+    io.emit('sensor:data', {
+      id: sensor_data.device_name,
+      nombre: sensor_data.device_name,
+      temperatura: sensor_data.temperatura,
+      humedad: sensor_data.humedad,
+      caudal: sensor_data.caudal,
+      lluvia: sensor_data.precipitacion,
+      timestamp: new Date().toISOString()
+    });
 
     try {
       const lectura = await insertReading(sensor_data);
       const alertasEmitidas = await emitirAlertaSiCorresponde(lectura);
       
       if (alertasEmitidas && alertasEmitidas.length > 0) {
-        io.emit('alertas:nueva', alertasEmitidas);
+        // Emitir cada alerta individualmente
+        alertasEmitidas.forEach(alerta => {
+          io.emit('alert:new', alerta);
+          console.log('🔔 Alerta emitida por WebSocket:', alerta.titulo);
+        });
       }
     } catch (dbError) {
       console.error('Error guardando lectura en base de datos:', dbError);

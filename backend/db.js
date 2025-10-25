@@ -61,12 +61,12 @@ async function getAlertasActivas() {
 async function getLecturasActuales() {
 	try {
 		const [rows] = await sequelize.query(`
-			SELECT device_id AS nombre, temperatura, humedad, lluvia, caudal, presion, createdAt as timestamp
+			SELECT device_name AS nombre, temperatura, humedad, precipitacion AS lluvia, caudal, createdAt as timestamp
 			FROM lecturas 
 			WHERE id IN (
 				SELECT MAX(id) 
 				FROM lecturas
-				GROUP BY device_id
+				GROUP BY device_name
 			)
 		`);
 		return rows;

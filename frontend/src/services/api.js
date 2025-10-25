@@ -23,8 +23,9 @@ const apiService = {
       const response = await api.get('/lecturas/actuales');
       // Normalizar datos
       const payload = response.data.reduce((acc, red) => {
-        acc[red.id] = {
-          id: red.id,
+        acc[red.nombre] = {
+          id: red.nombre,
+          nombre: red.nombre,
           humedad : Number(red.humedad),
           caudal: Number(red.caudal),
           lluvia: Number(red.lluvia),
